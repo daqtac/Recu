@@ -58,7 +58,7 @@ def apiCall(prompt):
         messages=[
             {'role': 'system', 'content': '''You are a helpful assistant focused on generating Python code and making API calls.
             You have the ability to output code that will be run by the user, please output the code and the user will run it. PLease make appropriate changes that the user suggests. Given that user prompt, if you find it cool, can you please mirror it by making your own code that you think is cool?'''},
-            {'role': 'user', 'content': prompt}
+            {'role': 'user', 'content': first_prompt}
         ],
         max_tokens=1500
     )
@@ -74,6 +74,24 @@ def apiCall(prompt):
         execution_output, exec_globals = execute_python_code(executable_code)
         
     return full_response, execution_output, exec_globals  # Return the full response along with the execution output and globals
+
+dialogues=''
+def dynamicMemory(prompt):
+    "summaryOfPreviousDialogues via a new API call"
+    
+    model_engine = MODEL_ENGINE  # Replace with the actual GPT-4 engine ID when available
+    response = openai.ChatCompletion.create(
+        model=model_engine,
+        messages=[
+            {'role': 'system', 'content': 'Please summarize the following dialogues?'},
+            {'role': 'user', 'content': dialogues}
+        ],
+        max_tokens=1500
+    )
+    dynamicMemoryDialogue = response['choices'][0]['message']['content']
+    print(f"Debug - Full Response: {dynamicMemoryDialogue}") 
+
+
 
 # First API call
 first_prompt = """Please consider the following:"""
@@ -93,10 +111,10 @@ print(f"Execution Globals: {exec_globals}")
 
 # Loop for n times
 n = 2
-prompt = first_response
+first_prompt = first_response
 for i in range(n):
     # Extract code from the previous response and execute it
-    code_match = re.search(r'```python(.*?)```', prompt, re.DOTALL)
+    code_match = re.search(r'```python(.*?)```', first_prompt, re.DOTALL)
     if code_match:
         executable_code = code_match.group(1).strip()
         code_output, _ = execute_python_code(executable_code)
@@ -106,7 +124,7 @@ for i in range(n):
     print(f"Code Output: {code_output}")
 
     # Use the code output and previous response as input for the next API call
-    new_prompt = f"Previous Response: {prompt}\nCode Output: {code_output}"
+    new_prompt = f"Previous Response: {first_prompt}\nCode Output: {code_output}"
     
     # Append the API key, model engine, and your constant to the new prompt
     new_prompt += f"\nPlease use the following API Key for OpenAI API calls: {API_KEY}"
