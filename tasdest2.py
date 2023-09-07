@@ -15,7 +15,7 @@ def read_api_key(file_path):
     with open(file_path, 'r') as f:
         return f.read().strip()
 
-API_KEY = read_api_key('Sep5thStart/api_key.txt')
+API_KEY = read_api_key('api_key.txt')
 print(f"Debug - API Key: {API_KEY}")  # Debugging line
 # Initialize OpenAI API (replace with your own API key)
 openai.api_key = API_KEY
@@ -28,7 +28,7 @@ def read_model_engine(file_path):
         return f.read().strip()
 
 
-MODEL_ENGINE = read_model_engine('Sep5thStart/model_engine.txt')
+MODEL_ENGINE = read_model_engine('model_engine.txt')
 # Initialize exec_globals
 exec_globals = {}
 
@@ -37,7 +37,7 @@ def import_instrucConst(file_path):
     with open(file_path, 'r') as f:
         return f.read().strip()
     
-CONSTANT = import_instrucConst('Sep5thStart/instrucConstant.txt')
+CONSTANT = import_instrucConst('instrucConstant.txt')
 
 
 def execute_python_code(code):
@@ -82,10 +82,9 @@ first_prompt += f"""\nPlease use the following API Key for OpenAI API calls:
 {API_KEY}\nThe model engine to use is: {MODEL_ENGINE}"""
 
 
-with open("Sep5thStart/tasdest2.py", "r") as f:
+with open("tasdest2.py", "r") as f:
     first_prompt = f.read()
 # print(first_prompt)
-# first_prompt= "make a python script that outputs an image"
 
 first_response, execution_output, exec_globals = apiCall(first_prompt)
 print(f"First Response: {first_response}")
@@ -93,7 +92,7 @@ print(f"Execution Output: {execution_output}")
 print(f"Execution Globals: {exec_globals}")
 
 # Loop for n times
-n = 1
+n = 2
 prompt = first_response
 for i in range(n):
     # Extract code from the previous response and execute it
