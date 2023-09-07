@@ -1,4 +1,3 @@
-#given a prompt can you please mirror it by making your own code that you think is cool?
 
 import openai
 import subprocess
@@ -11,13 +10,35 @@ import contextlib
 RED = "\033[91m"
 RESET = "\033[0m"
 
-API_KEY = "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"
-MODEL_ENGINE = "gpt-4"
+# Read API Key from external file
+def read_api_key(file_path):
+    with open(file_path, 'r') as f:
+        return f.read().strip()
+
+API_KEY = read_api_key('Sep5thStart/api_key.txt')
+print(f"Debug - API Key: {API_KEY}")  # Debugging line
+# Initialize OpenAI API (replace with your own API key)
+openai.api_key = API_KEY
+
+def read_model_engine(file_path):
+    """Read Model_engine_file info and store it in a variable. This needs to be done, 
+    otherwise in the next loop chatgpt will change it to a 2021 version of chatgpt 
+    (since it is the "latest" from what it can tell, when in reality the external files have the latest version for it.)"""
+    with open(file_path, 'r') as f:
+        return f.read().strip()
+
+
+MODEL_ENGINE = read_model_engine('Sep5thStart/model_engine.txt')
 # Initialize exec_globals
 exec_globals = {}
 
-# Initialize OpenAI API (replace with your own API key)
-openai.api_key = API_KEY
+def import_instrucConst(file_path):
+    "imports are less likely to be overwritten"
+    with open(file_path, 'r') as f:
+        return f.read().strip()
+    
+CONSTANT = import_instrucConst('Sep5thStart/instrucConstant.txt')
+
 
 def execute_python_code(code):
     exec_globals = {}
@@ -55,14 +76,16 @@ def apiCall(prompt):
     return full_response, execution_output, exec_globals  # Return the full response along with the execution output and globals
 
 # First API call
-first_prompt = """You're an Ai that can create new prompts on its own. The goal is to remain in the realm of python and create code."""
+first_prompt = """Please consider the following:"""
 #additional text goes here:
-first_prompt += f"""\nAPI Key: {"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"}
-\nModel Engine: {'gpt-4'}"""
+first_prompt += f"""\nPlease use the following API Key for OpenAI API calls: 
+{API_KEY}\nThe model engine to use is: {MODEL_ENGINE}"""
 
-with open("Sep5thStart/tasdest.py", "r") as f:
+
+with open("Sep5thStart/tasdest2.py", "r") as f:
     first_prompt = f.read()
 # print(first_prompt)
+# first_prompt= "make a python script that outputs an image"
 
 first_response, execution_output, exec_globals = apiCall(first_prompt)
 print(f"First Response: {first_response}")
@@ -85,10 +108,17 @@ for i in range(n):
 
     # Use the code output and previous response as input for the next API call
     new_prompt = f"Previous Response: {prompt}\nCode Output: {code_output}"
+    
+    # Append the API key, model engine, and your constant to the new prompt
+    new_prompt += f"\nPlease use the following API Key for OpenAI API calls: {API_KEY}"
+    new_prompt += f"\nThe model engine to use is: {MODEL_ENGINE}"
+    new_prompt += f"\n{CONSTANT}"  # Append the constant
+    
     response, _, _ = apiCall(new_prompt)
     print(f"Iteration {i+1} - New Prompt: {new_prompt}\nResponse: {response}\n")
     
     # Update the prompt for the next iteration
     prompt = response
+
 
 
