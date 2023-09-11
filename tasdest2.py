@@ -5,40 +5,15 @@ import re
 import io
 import sys
 import contextlib
+from config import RED, RESET, API_KEY, MODEL_ENGINE, CONSTANT
 
-# ANSI escape codes for colors
-RED = "\033[91m"
-RESET = "\033[0m"
-
-# Read API Key from external file
-def read_api_key(file_path):
-    with open(file_path, 'r') as f:
-        return f.read().strip()
-
-API_KEY = read_api_key('api_key.txt')
 print(f"Debug - API Key: {API_KEY}")  # Debugging line
-# Initialize OpenAI API (replace with your own API key)
+
+# Initialize OpenAI API
 openai.api_key = API_KEY
 
-def read_model_engine(file_path):
-    """Read Model_engine_file info and store it in a variable. This needs to be done, 
-    otherwise in the next loop chatgpt will change it to a 2021 version of chatgpt 
-    (since it is the "latest" from what it can tell, when in reality the external files have the latest version for it.)"""
-    with open(file_path, 'r') as f:
-        return f.read().strip()
-
-
-MODEL_ENGINE = read_model_engine('model_engine.txt')
 # Initialize exec_globals
 exec_globals = {}
-
-def import_instrucConst(file_path):
-    "imports are less likely to be overwritten"
-    with open(file_path, 'r') as f:
-        return f.read().strip()
-    
-CONSTANT = import_instrucConst('instrucConstant.txt')
-
 
 def execute_python_code(code):
     exec_globals = {}
@@ -57,7 +32,7 @@ def apiCall(prompt):
         model=model_engine,
         messages=[
             {'role': 'system', 'content': '''You are a helpful assistant focused on generating Python code and making API calls.
-            You have the ability to output code that will be run by the user, please output the code and the user will run it. PLease make appropriate changes that the user suggests. Given that user prompt, if you find it cool, can you please mirror it by making your own code that you think is cool?'''},
+            You have the ability to output code that will be run by the user, please output the code and the user will run it. PLease suggest and implement changes.'''},
             {'role': 'user', 'content': first_prompt}
         ],
         max_tokens=1500
@@ -100,7 +75,7 @@ first_prompt += f"""\nPlease use the following API Key for OpenAI API calls:
 {API_KEY}\nThe model engine to use is: {MODEL_ENGINE}"""
 
 
-with open("tasdest2.py", "r") as f:
+with open("Sep5thStart/tasdest2.py", "r") as f:
     first_prompt = f.read()
 # print(first_prompt)
 
